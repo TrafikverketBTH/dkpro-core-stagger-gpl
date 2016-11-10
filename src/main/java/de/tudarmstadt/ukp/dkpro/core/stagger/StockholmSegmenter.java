@@ -48,7 +48,7 @@ public class StockholmSegmenter
             }
         } 
         catch(IOException e) {
-            //TODO Handle exception
+            throw new AnalysisEngineProcessException(e);
         }
 
     }
