@@ -10,8 +10,8 @@ import org.apache.uima.fit.descriptor.LanguageCapability;
 import org.apache.uima.jcas.JCas;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import se.su.ling.stagger.SwedishTokenizer;
-import se.su.ling.stagger.Token;
 import se.su.ling.stagger.Tokenizer;
 
 @LanguageCapability({"sv"})
@@ -24,25 +24,26 @@ public class StockholmSegmenter
         throws AnalysisEngineProcessException
     {
         Tokenizer aTok = new SwedishTokenizer(new StringReader(aText));
-        ArrayList<Token> sentence;
+        ArrayList<se.su.ling.stagger.Token> sentence;
         
         try {
             while((sentence = aTok.readSentence()) != null) {
                 if(isWriteSentence() && !sentence.isEmpty()) {
                     int aBegin = sentence.get(0).offset;
-                    Token lastToken = sentence.get(sentence.size() - 1);
+                    se.su.ling.stagger.Token lastToken = sentence.get(sentence.size() - 1);
                     int aEnd = lastToken.offset + lastToken.value.length();
                     
                     createSentence(aJCas, aBegin, aEnd);
                 }
                 
                 if(isWriteToken() && !sentence.isEmpty()) {
-                    List<de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token> casTokens = 
-                            new ArrayList<de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token>();
-                    for(Token aToken : sentence) {
+                    List<Token> casTokens = new ArrayList<Token>();
+                    for(se.su.ling.stagger.Token aToken : sentence) {
                         int aBegin = aToken.offset;
                         int aEnd = aToken.offset + aToken.value.length();
-                        casTokens.add(createToken(aJCas, aBegin, aEnd));
+                        Token t = createToken(aJCas, aBegin, aEnd);
+                        t.setId(String.valueOf(aToken.type));
+                        casTokens.add(t);
                     }
                 }
             }
